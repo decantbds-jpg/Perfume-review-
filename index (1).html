@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Perfumholic: Perfume Reviews</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A7%B4%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,500;1,500&family=Hanken+Grotesk:wght@400;500&display=swap">
+<style>
+:root{
+  color-scheme:dark;
+  --green:#052419; --ink:#0a0a0a; --paper:#f1efe8; --mint:#bfe3cc;
+  --grey:#3f3f3f; --rule:#cfcbbd;
+  --display:"Bodoni Moda","Didot",Georgia,serif;
+  --body:"Hanken Grotesk",system-ui,sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--green);color:var(--ink);font-family:var(--body);line-height:1.6}
+[hidden]{display:none!important}
+.wrap{max-width:1100px;margin:0 auto;padding:0 20px}
+header{padding:24px 0 16px}
+.brand{font-family:var(--display);font-size:1.8rem;color:#fff;line-height:1}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 20px}
+.tabs button{font:inherit;font-weight:500;color:var(--ink);background:var(--paper);border:0;padding:12px 6px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--mint)}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #ffd54a;outline-offset:2px}
+.status{margin:0 0 14px;font-size:.95rem}
+.status:not(:empty){display:inline-block;background:var(--paper);padding:6px 12px}
+.toast{position:fixed;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));max-width:520px;margin:0 auto;background:#ffe9a8;padding:10px 14px;z-index:60;font-size:.95rem}
+.toast:empty{display:none}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px;padding-bottom:56px;align-items:start}
+.empty{background:var(--paper);padding:14px 18px;grid-column:1/-1;margin:0}
+.card{background:var(--paper);display:flex;flex-direction:column}
+.top{min-height:200px;background:#dde5dd;display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
+.top svg{width:80px;height:auto;margin-bottom:14px}
+.top img{width:100%;height:auto;display:block}
+.body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:9px;flex:1}
+.card h3{font-family:var(--display);font-weight:500;font-size:1.45rem;margin:0;line-height:1.15}
+.house{color:var(--grey);font-size:.9rem;margin-top:-4px}
+.score{font-size:1.15rem;letter-spacing:2px;line-height:1}
+.card p{margin:0;font-size:.95rem}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tags span{font-size:.8rem;border:1px solid var(--ink);padding:1px 9px;border-radius:999px}
+.notes,.by{color:var(--grey);font-size:.85rem}
+.acts{display:flex;flex-wrap:wrap;gap:8px;border-top:1px solid var(--rule);padding-top:10px}
+.mini{font:inherit;font-size:.85rem;color:var(--ink);background:#fff;border:1px solid var(--ink);padding:3px 12px;border-radius:999px;cursor:pointer}
+.mini[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.vote{display:inline-flex;align-items:center;gap:6px}
+.vote svg{width:16px;height:16px}
+.replies{display:grid;gap:8px;border-top:1px solid var(--rule);padding-top:10px}
+.rep{font-size:.9rem}
+.rep b{font-weight:500}
+.del{font:inherit;font-size:.8rem;color:var(--ink);background:none;border:0;text-decoration:underline;cursor:pointer;padding:0}
+footer{background:var(--paper);padding:14px 20px;font-size:.85rem}
+.panel{max-width:560px;margin:0 auto 56px;background:var(--paper);padding:24px;display:grid;gap:16px}
+.panel h2{font-family:var(--display);font-weight:500;font-size:1.7rem;margin:0}
+.panel label,.lbl{display:grid;gap:5px;font-size:.92rem;color:var(--grey)}
+.lbl{margin-bottom:6px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:480px){.row{grid-template-columns:1fr}}
+input,textarea{font:inherit;color:var(--ink);background:#fff;border:1px solid #9d9a8d;padding:9px 11px;border-radius:2px;width:100%}
+textarea{min-height:90px;resize:vertical}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{font:inherit;font-size:.85rem;color:var(--ink);background:#fff;border:1px solid var(--ink);padding:4px 12px;border-radius:999px;cursor:pointer}
+.chips button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.stars{display:flex;align-items:center;gap:2px}
+.stars button{font-size:2rem;line-height:1;background:none;border:0;color:#a9a69a;cursor:pointer;padding:0 2px}
+.stars button.on{color:var(--ink)}
+.rt{font-size:.9rem;color:var(--grey);margin-left:10px}
+#fPrev{max-height:150px;width:auto;max-width:100%;object-fit:contain;border:1px solid var(--rule)}
+.btn{font:inherit;font-weight:500;color:var(--paper);background:var(--ink);border:0;padding:11px 20px;cursor:pointer}
+.ghost{font:inherit;color:var(--ink);background:none;border:1px solid var(--ink);padding:11px 20px;cursor:pointer}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.fstatus{margin:0;font-size:.95rem;font-weight:500}
+.fstatus:not(:empty){background:#ffe9a8;padding:8px 12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><div class="brand">Perfumholic</div></header>
+  <nav class="tabs" aria-label="Sections">
+    <button type="button" id="tAll" aria-selected="true">Reviews</button>
+    <button type="button" id="tGive" aria-selected="false">Give review</button>
+    <button type="button" id="tMine" aria-selected="false">Your reviews</button>
+  </nav>
+  <p class="status" id="listStatus" role="status"></p>
+
+  <section id="vAll"><main class="grid" id="grid"></main></section>
+
+  <section id="vGive" hidden>
+    <div class="panel">
+      <h2 id="formTitle">Give your review</h2>
+      <p class="fstatus" id="formStatusTop" role="status"></p>
+            <div class="row">
+        <label>Perfume name<input id="fName" maxlength="60"></label>
+        <label>Brand (optional)<input id="fBrand" maxlength="60"></label>
+      </div>
+      <div>
+        <div class="lbl">Your rating</div>
+        <div style="display:flex;align-items:center;flex-wrap:wrap"><div class="stars" id="fStars" role="group" aria-label="Your rating"></div><span class="rt" id="fRateText"></span></div>
+      </div>
+      <div><div class="lbl" id="l2">Strength</div><div class="chips" id="fStr" role="group" aria-labelledby="l2"></div></div>
+      <div><div class="lbl" id="l3">How long it lasts</div><div class="chips" id="fLast" role="group" aria-labelledby="l3"></div></div>
+      <div><div class="lbl" id="l4">Best season</div><div class="chips" id="fSeason" role="group" aria-labelledby="l4"></div></div>
+      <div><div class="lbl" id="l5">Best time</div><div class="chips" id="fTime" role="group" aria-labelledby="l5"></div></div>
+      <label>Notes you can smell (optional)<input id="fNotes" maxlength="100" placeholder="Rose, vanilla, musk"></label>
+      <label>Your review<textarea id="fText" maxlength="500"></textarea></label>
+      <div>
+        <div class="lbl">Photo of the bottle (optional)</div>
+        <div class="actions"><button type="button" class="ghost" id="pickBtn">Choose photo</button><button type="button" class="ghost" id="camBtn">Take photo</button></div>
+        <input id="fPhoto" type="file" accept="image/*" hidden>
+        <input id="fCam" type="file" accept="image/*" capture="environment" hidden>
+        <p class="rt" style="margin:6px 0 0">If nothing opens when you tap, open this page in your phone’s browser instead of the app.</p>
+        <p class="rt" id="photoMsg" role="status" style="margin:6px 0 0"></p>
+        <img id="fPrev" alt="Selected photo preview" hidden>
+        <div><button type="button" class="del" id="rmPhoto" hidden>Remove photo</button></div>
+      </div>
+      <label>Your name (optional)<input id="fBy" maxlength="40"></label>
+      <div class="actions">
+        <button class="btn" id="postBtn" type="button">Post review</button>
+        <button class="ghost" id="cancelBtn" type="button">Cancel</button>
+      </div>
+      <p class="fstatus" id="formStatus" role="status"></p>
+    </div>
+  </section>
+
+  <section id="vMine" hidden><p class="status" id="mineNote">Your reviews are tied to this browser. If you clear your browsing data or use another device, they won’t show here.</p><div class="grid" id="gridMine"></div></section>
+</div>
+<footer>Reviews are written by readers and shown to everyone.</footer>
+<div class="toast" id="toast" role="status"></div>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getAuth,signInAnonymously,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getFirestore,collection,doc,addDoc,setDoc,updateDoc,deleteDoc,onSnapshot,query,orderBy,limit} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* ===== STEP 1: paste your Firebase settings between the quotes below ===== */
+const firebaseConfig={
+  apiKey:"PASTE_API_KEY",
+  authDomain:"PASTE_AUTH_DOMAIN",
+  projectId:"PASTE_PROJECT_ID",
+  storageBucket:"PASTE_STORAGE_BUCKET",
+  messagingSenderId:"PASTE_SENDER_ID",
+  appId:"PASTE_APP_ID"
+};
+/* ======================================================================== */
+
+window.addEventListener("error",function(e){var s=document.getElementById("listStatus");if(s)s.textContent="Something went wrong: "+(e.message||"unknown error")});
+var PALETTE=["#b0587a","#8a6f4a","#e0b030","#b5651d","#5aa5b5","#d9534f","#c58a6b","#4f8a4f","#3a7fb0","#b9a9c9"];
+var LISTS={fStr:["Soft","Moderate","Strong"],fLast:["Under 3 hours","3 to 6 hours","6 to 9 hours","Over 9 hours"],fSeason:["Spring","Summer","Autumn","Winter","All year"],fTime:["Day","Night","Any time"]};
+var FIELD={fStr:"strength",fLast:"lasts",fSeason:"season",fTime:"time"};
+var sel={fStr:[],fLast:[],fSeason:[],fTime:[]},paints={};
+var rating=0,photoUrl="",editingId=null,loaded=false,tmr=null,toastT=null;
+var fs=null,uid="",reviews=[],likes=[],replies=[],view="all",open={},drafts={},armed={},sig={};
+var $=function(id){return document.getElementById(id)};
+function el(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e}
+function toArr(v){return Array.isArray(v)?v:(v?[v]:[])}
+function getName(){try{return localStorage.getItem("pf_name")||""}catch(e){return ""}}
+function setName(n){try{localStorage.setItem("pf_name",n)}catch(e){}}
+function note(m){var t=$("toast");t.textContent=m;clearTimeout(toastT);if(m)toastT=setTimeout(function(){t.textContent=""},6000)}
+function say(m){$("formStatus").textContent=m;$("formStatusTop").textContent=m;if(m)window.scrollTo(0,0)}
+function canPost(what){
+  if(!fs){note("Setup needed: the site isn’t connected to its database yet.");return false}
+  if(!uid){note("Connecting... try again in a moment.");return false}
+  return true;
+}
+function changed(k,a){var s=JSON.stringify(a);if(sig[k]===s)return false;sig[k]=s;return true}
+function grab(snap){return snap.docs.map(function(d){var x=Object.assign({},d.data());x._id=d.id;return x})}
+
+/* chips */
+Object.keys(LISTS).forEach(function(id){
+  var box=$(id);
+  function paint(){Array.prototype.forEach.call(box.children,function(b){var v=b.getAttribute("data-v");b.setAttribute("aria-pressed",v===""?sel[id].length===0:sel[id].indexOf(v)>-1)})}
+  [""].concat(LISTS[id]).forEach(function(v){
+    var b=el("button","",v||"None");b.type="button";b.setAttribute("data-v",v);
+    b.addEventListener("click",function(){
+      if(v===""){sel[id]=[]}else{var i=sel[id].indexOf(v);if(i>-1)sel[id].splice(i,1);else sel[id].push(v)}
+      paint();
+    });
+    box.appendChild(b);
+  });
+  paints[id]=paint;paint();
+});
+
+/* stars */
+function paintStars(){
+  Array.prototype.forEach.call($("fStars").children,function(b,i){b.classList.toggle("on",i<rating);b.setAttribute("aria-pressed",i+1===rating)});
+  $("fRateText").textContent=rating?rating+" out of 5":"No rating";
+}
+[1,2,3,4,5].forEach(function(n){
+  var b=el("button","","★");b.type="button";b.setAttribute("aria-label",n+(n===1?" star":" stars"));
+  b.addEventListener("click",function(){rating=(rating===n?0:n);paintStars()});
+  $("fStars").appendChild(b);
+});
+paintStars();
+
+/* photo (shrunk, never cropped) */
+function loadSrc(file){
+  return new Promise(function(res,rej){
+    function viaImage(){
+      var fr=new FileReader();fr.onerror=rej;
+      fr.onload=function(){var im=new Image();im.onload=function(){res(im)};im.onerror=rej;im.src=fr.result};
+      fr.readAsDataURL(file);
+    }
+    if(window.createImageBitmap){
+      createImageBitmap(file,{imageOrientation:"from-image"}).then(res,function(){createImageBitmap(file).then(res,viaImage)});
+    }else viaImage();
+  });
+}
+function shrink(file){
+  var work=loadSrc(file).then(function(src){
+    var w=src.naturalWidth||src.width,h=src.naturalHeight||src.height,s=Math.min(1,600/Math.max(w,h)),cv=document.createElement("canvas");
+    cv.width=Math.max(1,Math.round(w*s));cv.height=Math.max(1,Math.round(h*s));
+    cv.getContext("2d").drawImage(src,0,0,cv.width,cv.height);
+    var u=cv.toDataURL("image/jpeg",0.72);
+    if(u.indexOf("data:image/jpeg")!==0)throw new Error("bad");
+    return u;
+  });
+  var limitP=new Promise(function(_,rej){setTimeout(function(){rej(new Error("slow"))},15000)});
+  return Promise.race([work,limitP]);
+}
+function showPrev(){var p=$("fPrev");p.hidden=!photoUrl;if(photoUrl)p.src=photoUrl;$("rmPhoto").hidden=!photoUrl}
+$("pickBtn").addEventListener("click",function(){$("fPhoto").click()});
+$("camBtn").addEventListener("click",function(){$("fCam").click()});
+function onPick(){
+  var f=this.files&&this.files[0];if(!f)return;
+  $("photoMsg").textContent="Processing photo...";
+  shrink(f).then(function(u){photoUrl=u;showPrev();$("photoMsg").textContent="Photo added."})
+    .catch(function(){photoUrl="";showPrev();$("photoMsg").textContent="Couldn’t read that photo. Try a different one (JPG or PNG)."});
+}
+$("fPhoto").addEventListener("change",onPick);$("fCam").addEventListener("change",onPick);
+$("rmPhoto").addEventListener("click",function(){photoUrl="";$("fPhoto").value="";$("fCam").value="";showPrev();$("photoMsg").textContent=""});
+
+/* form state */
+function resetFields(){
+  editingId=null;
+  ["fName","fBrand","fNotes","fText"].forEach(function(i){$(i).value=""});
+  $("fBy").value=getName();$("fPhoto").value="";$("fCam").value="";photoUrl="";showPrev();$("photoMsg").textContent="";
+  Object.keys(LISTS).forEach(function(id){sel[id]=[];paints[id]()});
+  rating=0;paintStars();
+  $("formTitle").textContent="Give your review";$("postBtn").textContent="Post review";say("");
+}
+function startEdit(r){
+  if(!r._id){note("Couldn’t find that review. Reload the page and try again.");return}
+  resetFields();editingId=r._id;
+  $("fName").value=r.name||"";$("fBrand").value=r.brand||"";$("fNotes").value=r.notes||"";$("fText").value=r.text||"";
+  $("fBy").value=(r.by&&r.by!=="Anonymous")?r.by:"";
+  rating=(typeof r.rating==="number")?r.rating:0;paintStars();
+  Object.keys(FIELD).forEach(function(id){sel[id]=toArr(r[FIELD[id]]).slice();paints[id]()});
+  photoUrl=(typeof r.photo==="string"&&r.photo.indexOf("data:image/jpeg")===0)?r.photo:"";showPrev();
+  $("formTitle").textContent="Edit your review";$("postBtn").textContent="Save changes";
+  showView("give");
+}
+
+/* cards */
+function bottle(c){
+  var s=document.createElementNS("http://www.w3.org/2000/svg","svg");
+  s.setAttribute("viewBox","0 0 96 150");s.setAttribute("aria-hidden","true");
+  s.innerHTML='<rect x="36" y="4" width="24" height="22" fill="#0a0a0a"/><rect x="42" y="26" width="12" height="10" fill="#444"/><rect x="8" y="36" width="80" height="108" rx="6" fill="'+c+'"/><rect x="18" y="46" width="10" height="88" rx="5" fill="#fff" opacity=".25"/>';
+  return s;
+}
+function colorFor(s){var h=0;String(s||"").split("").forEach(function(ch){h=(h*31+ch.charCodeAt(0))%1000});return PALETTE[h%PALETTE.length]}
+function twoStep(btn,label,action){
+  var key=btn.getAttribute("data-key")||label;
+  function paint(){btn.textContent=(armed[key]>Date.now())?"Tap again to confirm":label}
+  paint();
+  btn.addEventListener("click",function(){
+    if(!(armed[key]>Date.now())){armed[key]=Date.now()+8000;paint();note("Tap the button again to confirm.");return}
+    delete armed[key];action();
+  });
+}
+function voteOf(l){return l.v==="dislike"?"dislike":"like"}
+function voteCount(rid,t){var n=0;likes.forEach(function(l){if(l.rid===rid&&voteOf(l)===t)n++});return n}
+function myVote(rid){var m="";likes.forEach(function(l){if(l.rid===rid&&l.uid===uid)m=voteOf(l)});return m}
+function repsFor(rid){return replies.filter(function(x){return x.rid===rid})}
+function vote(rid,t){
+  if(!canPost())return;
+  var ref=doc(fs,"likes",rid+"_"+uid);
+  (myVote(rid)===t?deleteDoc(ref):setDoc(ref,{rid:rid,uid:uid,v:t,createdAt:Date.now()}))
+    .catch(function(e){note("Couldn’t save that: "+((e&&e.message)||"no permission"))});
+}
+function postReply(rid,dr){
+  var t=dr.t.trim();
+  if(!t){note("Please write a reply first.");return}
+  if(!canPost())return;
+  var nm=dr.n.trim();setName(nm);
+  addDoc(collection(fs,"replies"),{rid:rid,uid:uid,by:nm||"Anonymous",text:t,createdAt:Date.now()})
+    .then(function(){dr.t="";render()})
+    .catch(function(e){note("Couldn’t post your reply: "+((e&&e.message)||"no permission"))});
+}
+function deleteReview(r){
+  if(!r._id){note("Couldn’t find that review. Reload the page and try again.");return}
+  deleteDoc(doc(fs,"reviews",r._id)).then(function(){
+    reviews=reviews.filter(function(x){return x._id!==r._id});render();note("Review deleted.");
+  }).catch(function(e){note("Couldn’t delete that review: "+((e&&e.message)||"no permission"))});
+}
+function voteBtn(up,n){
+  var b=el("button","mini vote");b.type="button";
+  var s=document.createElementNS("http://www.w3.org/2000/svg","svg");
+  s.setAttribute("viewBox","0 0 24 24");s.setAttribute("aria-hidden","true");
+  s.innerHTML='<path fill="currentColor"'+(up?'':' transform="rotate(180 12 12)"')+' d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>';
+  b.appendChild(s);b.appendChild(el("span","",String(n)));return b;
+}
+function repliesBox(r,reps){
+  var box=el("div","replies");
+  if(!reps.length)box.appendChild(el("div","rep","No replies yet. Share your own experience with this perfume."));
+  reps.forEach(function(x){
+    var d=el("div","rep");d.appendChild(el("b","",(x.by||"Anonymous")+": "));d.appendChild(document.createTextNode(x.text||""));
+    if(x.uid&&x.uid===uid){
+      var del=el("button","del","Delete");del.type="button";del.setAttribute("data-key","r"+x._id);
+      twoStep(del,"Delete",function(){deleteDoc(doc(fs,"replies",x._id)).catch(function(){note("Couldn’t delete that reply.")})});
+      d.appendChild(document.createTextNode(" "));d.appendChild(del);
+    }
+    box.appendChild(d);
+  });
+  var dr=drafts[r._id]||(drafts[r._id]={t:"",n:getName()});
+  var ti=el("input");ti.placeholder="Write a reply";ti.maxLength=300;ti.value=dr.t;ti.setAttribute("aria-label","Write a reply");
+  ti.addEventListener("input",function(){dr.t=ti.value});
+  var ni=el("input");ni.placeholder="Your name (optional)";ni.maxLength=40;ni.value=dr.n;ni.setAttribute("aria-label","Your name");
+  ni.addEventListener("input",function(){dr.n=ni.value});
+  var pb=el("button","mini","Post reply");pb.type="button";
+  pb.addEventListener("click",function(){postReply(r._id,dr)});
+  box.appendChild(ti);box.appendChild(ni);box.appendChild(pb);
+  return box;
+}
+function makeCard(r,mine){
+  var c=el("article","card"),top=el("div","top");
+  if(typeof r.photo==="string"&&r.photo.indexOf("data:image/jpeg;base64,")===0){
+    var im=document.createElement("img");im.src=r.photo;im.alt=(r.name||"Perfume")+" bottle";top.appendChild(im);
+  }else top.appendChild(bottle(colorFor(r.name)));
+  c.appendChild(top);
+  var b=el("div","body");
+  b.appendChild(el("h3","",r.name||"Untitled"));
+  if(r.brand)b.appendChild(el("div","house",r.brand));
+  if(typeof r.rating==="number"&&r.rating>0){
+    var n=Math.min(5,Math.round(r.rating)),sc=el("div","score","★★★★★".slice(0,n)+"☆☆☆☆☆".slice(n));
+    sc.setAttribute("aria-label",n+" out of 5 stars");b.appendChild(sc);
+  }
+  b.appendChild(el("p","",r.text||""));
+  var tags=[];
+  [["Strength","strength"],["Lasts","lasts"],["Season","season"],["Time","time"]].forEach(function(p){var a=toArr(r[p[1]]);if(a.length)tags.push(p[0]+": "+a.join(", "))});
+  if(tags.length){var t=el("div","tags");tags.forEach(function(x){t.appendChild(el("span","",x))});b.appendChild(t)}
+  if(r.notes)b.appendChild(el("div","notes","Notes: "+r.notes));
+  b.appendChild(el("div","by","Reviewed by "+(r.by||"Anonymous")));
+  var acts=el("div","acts"),mv=myVote(r._id),reps=repsFor(r._id);
+  var lb=voteBtn(true,voteCount(r._id,"like"));lb.setAttribute("aria-label","Like");lb.setAttribute("aria-pressed",mv==="like");
+  lb.addEventListener("click",function(){vote(r._id,"like")});
+  var xb=voteBtn(false,voteCount(r._id,"dislike"));xb.setAttribute("aria-label","Dislike");xb.setAttribute("aria-pressed",mv==="dislike");
+  xb.addEventListener("click",function(){vote(r._id,"dislike")});
+  var rb=el("button","mini","Replies ("+reps.length+")");rb.type="button";rb.setAttribute("aria-pressed",!!open[r._id]);
+  rb.addEventListener("click",function(){open[r._id]=!open[r._id];render()});
+  acts.appendChild(lb);acts.appendChild(xb);acts.appendChild(rb);
+  if(mine){
+    var eb=el("button","mini","Edit");eb.type="button";eb.addEventListener("click",function(){startEdit(r)});acts.appendChild(eb);
+    var d2=el("button","mini","Delete");d2.type="button";d2.setAttribute("data-key","d"+r._id);twoStep(d2,"Delete",function(){deleteReview(r)});acts.appendChild(d2);
+  }
+  b.appendChild(acts);
+  if(open[r._id])b.appendChild(repliesBox(r,reps));
+  c.appendChild(b);return c;
+}
+function fill(g,list,mine,emptyMsg){
+  g.textContent="";
+  if(!list.length){g.appendChild(el("p","empty",loaded?emptyMsg:"Loading reviews..."));return}
+  list.forEach(function(r){g.appendChild(makeCard(r,mine))});
+}
+function render(){
+  if(view==="all")fill($("grid"),reviews,false,"No reviews yet. Open “Give review” to write the first one.");
+  if(view==="mine"){
+    var mine=uid?reviews.filter(function(r){return r.uid&&r.uid===uid}):[];
+    fill($("gridMine"),mine,true,"You haven’t written a review yet. Open “Give review” to write one.");
+  }
+}
+function safeRender(){
+  var a=document.activeElement;
+  if(a&&(a.tagName==="INPUT"||a.tagName==="TEXTAREA")&&($("grid").contains(a)||$("gridMine").contains(a))){clearTimeout(tmr);tmr=setTimeout(safeRender,3000);return}
+  render();
+}
+
+/* tabs */
+function showView(v){
+  view=v;
+  [["all","vAll","tAll"],["give","vGive","tGive"],["mine","vMine","tMine"]].forEach(function(t){
+    $(t[1]).hidden=t[0]!==v;$(t[2]).setAttribute("aria-selected",t[0]===v);
+  });
+  render();window.scrollTo(0,0);
+}
+$("tAll").addEventListener("click",function(){showView("all")});
+$("tGive").addEventListener("click",function(){resetFields();showView("give")});
+$("tMine").addEventListener("click",function(){showView("mine")});
+$("cancelBtn").addEventListener("click",function(){var was=editingId;resetFields();showView(was?"mine":"all")});
+
+/* post / save */
+$("postBtn").addEventListener("click",function(){
+  var name=$("fName").value.trim(),text=$("fText").value.trim(),by=$("fBy").value.trim();
+  if(!fs){say("Setup needed: the site isn’t connected to its database yet.");return}
+  if(!uid){say("Connecting... try again in a moment.");return}
+  if(!name||!text){say("Please add the perfume name and your review.");return}
+  $("postBtn").disabled=true;say("Saving...");
+  var timer=setTimeout(function(){say("This is taking too long. Check your connection and try again.");$("postBtn").disabled=false},20000);
+  var data={name:name,brand:$("fBrand").value.trim(),strength:sel.fStr.slice(),lasts:sel.fLast.slice(),season:sel.fSeason.slice(),time:sel.fTime.slice(),notes:$("fNotes").value.trim(),text:text,by:by||"Anonymous",rating:rating||null,photo:photoUrl};
+  setName(by);
+  var wasEdit=!!editingId;
+  var p=wasEdit?updateDoc(doc(fs,"reviews",editingId),data):addDoc(collection(fs,"reviews"),Object.assign({uid:uid,createdAt:Date.now()},data));
+  p.then(function(){
+    resetFields();
+    note(wasEdit?"Your changes are saved.":"Thanks, your review is posted.");
+    showView(wasEdit?"mine":"all");
+  }).catch(function(e){
+    say("Couldn’t save: "+((e&&e.message)||"please try again."));
+  }).then(function(){clearTimeout(timer);$("postBtn").disabled=false});
+});
+
+resetFields();render();
+
+/* connect to Firebase */
+if(String(firebaseConfig.apiKey).indexOf("PASTE")===0){
+  $("listStatus").textContent="Setup needed: paste your Firebase settings into this file (Step 1 in the setup guide).";
+}else{
+  var app=initializeApp(firebaseConfig);
+  fs=getFirestore(app);
+  var auth=getAuth(app);
+  onAuthStateChanged(auth,function(u){if(u){uid=u.uid;render()}});
+  signInAnonymously(auth).catch(function(e){
+    $("listStatus").textContent="Couldn’t connect: turn on Anonymous sign-in in Firebase (Authentication, then Sign-in method). "+(e&&e.code?e.code:"");
+  });
+  var t=setTimeout(function(){$("listStatus").textContent="Reviews can’t be reached yet. Check your connection."},10000);
+  onSnapshot(query(collection(fs,"reviews"),orderBy("createdAt","desc"),limit(100)),function(snap){
+    clearTimeout(t);$("listStatus").textContent="";var g=grab(snap),first=!loaded;loaded=true;
+    if(changed("r",g)||first){reviews=g;safeRender()}
+  },function(){clearTimeout(t);$("listStatus").textContent="Couldn’t load reviews. Check the database rules in Firebase."});
+  onSnapshot(query(collection(fs,"likes"),limit(3000)),function(snap){var g=grab(snap);if(changed("l",g)){likes=g;safeRender()}},function(){});
+  onSnapshot(query(collection(fs,"replies"),orderBy("createdAt","asc"),limit(1000)),function(snap){var g=grab(snap);if(changed("p",g)){replies=g;safeRender()}},function(){});
+}
+</script>
+</body>
+</html>
